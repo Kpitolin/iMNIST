@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1108" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="iMNIST" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="F75-ce-Pll"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="oAT-4r-5EW"/>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="F75-ce-Pll" secondAttribute="trailing" id="4QA-Dp-2Al"/>
+                            <constraint firstItem="oAT-4r-5EW" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="5xq-3W-O0D"/>
+                            <constraint firstAttribute="trailing" secondItem="oAT-4r-5EW" secondAttribute="trailing" id="ARj-hr-zNn"/>
+                            <constraint firstItem="F75-ce-Pll" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Jw2-Ne-e6P"/>
+                            <constraint firstItem="F75-ce-Pll" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="NQu-1d-1g1"/>
+                            <constraint firstItem="oAT-4r-5EW" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Rh4-Rz-1hq"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="F75-ce-Pll" secondAttribute="bottom" id="WRx-f8-G7q"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="oAT-4r-5EW" secondAttribute="bottom" id="ieB-tR-VSU"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="mainImgView" destination="F75-ce-Pll" id="boC-Yp-ZKv"/>
+                        <outlet property="tempImgView" destination="oAT-4r-5EW" id="2C5-j2-ulp"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="141.59999999999999" y="124.58770614692655"/>
+        </scene>
+    </scenes>
+</document>
