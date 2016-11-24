@@ -10,11 +10,13 @@ import UIKit
 
 class ViewController: UIViewController {
 
+	// the imageview must be square or we have to crop
 	@IBOutlet weak var mainImgView: UIImageView!
 	@IBOutlet weak var tempImgView: UIImageView!
+	@IBOutlet weak var resultLabel: UILabel!
 	
 	// MARK: - Drawing Attributes
-	
+	var model = DeepLearningModel()
 	var lastPoint = CGPoint.zero
 	var red: CGFloat = 0.0
 	var green: CGFloat = 0.0
@@ -22,10 +24,11 @@ class ViewController: UIViewController {
 	var brushWidth: CGFloat = 1.0
 	var opacity: CGFloat = 1.0
 	var swiped = false
-	
 	// MARK: - Other Attributes
-
+	var uiImage : UIImage?
 	var timer = Timer()
+	var results = [Float]()
+
 
 	
 	// MARK: - UIViewController lifecycle
@@ -33,44 +36,50 @@ class ViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do any additional setup after loading the view, typically from a nib.
+		resultLabel.text = ""
 	}
+	
 
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.
+		
 	}
 	
 	// MARK: - Drawing-related methods
 	// The drawing part was heavily inspired by Ray Wenderlich tutorial website : https://www.raywenderlich.com/87899/make-simple-drawing-app-uikit-swift
-	func drawLineFrom(fromPoint: CGPoint, toPoint: CGPoint) {
+	func drawLineFrom(firstPoint: CGPoint, to lastPoint: CGPoint) {
 	
 		
 		// 1
 		UIGraphicsBeginImageContext(view.frame.size)
-		let context = UIGraphicsGetCurrentContext()
+		let context : CGContext? = UIGraphicsGetCurrentContext()
 		
-		tempImgView.image?.draw(in: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height))
-		
-		// 2
-		context?.move(to: fromPoint)
-		context?.addLine(to: toPoint)
-		
-		// 3
-		context?.setLineCap(.round)
-		context?.setLineWidth(brushWidth)
-		context?.setStrokeColor(UIColor(red: red, green: green, blue: blue, alpha: 1.0).cgColor)
-		context?.setBlendMode(.normal)
-		
-		// 4
-		context?.strokePath()
-		
-		// 5
-		tempImgView.image = UIGraphicsGetImageFromCurrentImageContext()
-		tempImgView.alpha = opacity
-		//let uiImage = UIGraphicsGetImageFromCurrentImageContext()
-		UIGraphicsEndImageContext()
-
-		
+		if context != nil {
+			tempImgView.image?.draw(in: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height))
+			
+			// 2
+			context?.move(to: firstPoint)
+			context?.addLine(to: lastPoint)
+			
+			// 3
+			context?.setLineCap(.round)
+			context?.setLineWidth(brushWidth)
+			context?.setStrokeColor(UIColor(red: red, green: green, blue: blue, alpha: 1.0).cgColor)
+			context?.setBlendMode(.normal)
+			
+			// 4
+			context?.strokePath()
+			
+			// 5
+			tempImgView.image = UIGraphicsGetImageFromCurrentImageContext()
+			tempImgView.alpha = opacity
+			UIGraphicsEndImageContext()
+		}else{
+			let alertVC = UIAlertController(title: "Error", message: "Impossible to draw. Relaunch app and try again later.", preferredStyle: .alert)
+			alertVC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+			self.show(alertVC, sender: nil)
+		}
 	}
 	
 	func resetCanvas(){
@@ -92,7 +101,7 @@ class ViewController: UIViewController {
 	
 	
 	func startTimer(){
-		timer = Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(ViewController.startFadeAnimation), userInfo: nil, repeats: false)
+		timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(ViewController.startFadeAnimation), userInfo: nil, repeats: false)
 	}
 	
 	func cancelTimer(){
@@ -101,11 +110,10 @@ class ViewController: UIViewController {
 	
 	// MARK : - UIResponder methods
 	
-	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		
 		swiped = false
-		timer.invalidate()
+		cancelTimer()
 		if let touch = touches.first{
 			lastPoint = touch.location(in: self.view)
 		}
@@ -114,7 +122,7 @@ class ViewController: UIViewController {
 		
 	  if !swiped {
 		// draw a single point
-		drawLineFrom(fromPoint: lastPoint, toPoint: lastPoint)
+		drawLineFrom(firstPoint: lastPoint, to: lastPoint)
 	  }
 			
 	  // Merge tempImgView into mainImgView
@@ -122,10 +130,29 @@ class ViewController: UIViewController {
 	  mainImgView.image?.draw(in: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height), blendMode: .normal, alpha: 1.0)
 	  tempImgView.image?.draw(in: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height), blendMode: .normal, alpha: opacity)
 	  mainImgView.image = UIGraphicsGetImageFromCurrentImageContext()
-	  UIGraphicsEndImageContext()
+	
+		if let cgimage = mainImgView.image?.cgImage?.copy(){
+			uiImage = UIImage(cgImage: cgimage)
+		}
+		UIGraphicsEndImageContext()
+	 tempImgView.image = nil
+
+	}
+	
+	func inferDigitFromImage(){
+		if let image = uiImage{
+			if let safeResults = model.inferResultsFromImage(image: image) {
+				results = safeResults
+				print(results)
+				startTimer()
+				
+			}
 			
-	  tempImgView.image = nil
-	  startTimer()
+		}
+
+	}
+	@IBAction func computeAction(_ sender: AnyObject) {
+		inferDigitFromImage()
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -133,7 +160,7 @@ class ViewController: UIViewController {
 		swiped = true
 		if let touch = touches.first {
 			let currentPoint = touch.location(in: view)
-			drawLineFrom(fromPoint: lastPoint, toPoint: currentPoint)
+			drawLineFrom(firstPoint: lastPoint, to: currentPoint)
 			
 			// 7
 			lastPoint = currentPoint

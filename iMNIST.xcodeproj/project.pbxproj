@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DE28E1221DE59F2B00F904BC /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE28E1211DE59F2B00F904BC /* Accelerate.framework */; };
+		DE28E1241DE5A3A100F904BC /* DeepLearningModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE28E1231DE5A3A100F904BC /* DeepLearningModel.swift */; };
+		DE28E1271DE6A7AD00F904BC /* biases.data in Resources */ = {isa = PBXBuildFile; fileRef = DE28E1251DE6A7AD00F904BC /* biases.data */; };
+		DE28E1281DE6A7AD00F904BC /* weights.data in Resources */ = {isa = PBXBuildFile; fileRef = DE28E1261DE6A7AD00F904BC /* weights.data */; };
 		DEA0BDAE1DE4E72F00C0C65D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA0BDAD1DE4E72F00C0C65D /* AppDelegate.swift */; };
 		DEA0BDB01DE4E72F00C0C65D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA0BDAF1DE4E72F00C0C65D /* ViewController.swift */; };
 		DEA0BDB31DE4E72F00C0C65D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEA0BDB11DE4E72F00C0C65D /* Main.storyboard */; };
@@ -26,6 +30,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DE28E1211DE59F2B00F904BC /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		DE28E1231DE5A3A100F904BC /* DeepLearningModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLearningModel.swift; sourceTree = "<group>"; };
+		DE28E1251DE6A7AD00F904BC /* biases.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = biases.data; sourceTree = "<group>"; };
+		DE28E1261DE6A7AD00F904BC /* weights.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = weights.data; sourceTree = "<group>"; };
 		DEA0BDAA1DE4E72F00C0C65D /* iMNIST.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iMNIST.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA0BDAD1DE4E72F00C0C65D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DEA0BDAF1DE4E72F00C0C65D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -43,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE28E1221DE59F2B00F904BC /* Accelerate.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,12 +65,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DE28E1201DE59F2B00F904BC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DE28E1211DE59F2B00F904BC /* Accelerate.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		DEA0BDA11DE4E72F00C0C65D = {
 			isa = PBXGroup;
 			children = (
 				DEA0BDAC1DE4E72F00C0C65D /* iMNIST */,
 				DEA0BDC11DE4E73000C0C65D /* iMNISTTests */,
 				DEA0BDAB1DE4E72F00C0C65D /* Products */,
+				DE28E1201DE59F2B00F904BC /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -79,6 +97,9 @@
 			children = (
 				DEA0BDAD1DE4E72F00C0C65D /* AppDelegate.swift */,
 				DEA0BDAF1DE4E72F00C0C65D /* ViewController.swift */,
+				DE28E1231DE5A3A100F904BC /* DeepLearningModel.swift */,
+				DE28E1251DE6A7AD00F904BC /* biases.data */,
+				DE28E1261DE6A7AD00F904BC /* weights.data */,
 				DEA0BDB11DE4E72F00C0C65D /* Main.storyboard */,
 				DEA0BDB41DE4E72F00C0C65D /* Assets.xcassets */,
 				DEA0BDB61DE4E72F00C0C65D /* LaunchScreen.storyboard */,
@@ -182,7 +203,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEA0BDB81DE4E72F00C0C65D /* LaunchScreen.storyboard in Resources */,
+				DE28E1281DE6A7AD00F904BC /* weights.data in Resources */,
 				DEA0BDB51DE4E72F00C0C65D /* Assets.xcassets in Resources */,
+				DE28E1271DE6A7AD00F904BC /* biases.data in Resources */,
 				DEA0BDB31DE4E72F00C0C65D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -203,6 +226,7 @@
 			files = (
 				DEA0BDB01DE4E72F00C0C65D /* ViewController.swift in Sources */,
 				DEA0BDAE1DE4E72F00C0C65D /* AppDelegate.swift in Sources */,
+				DE28E1241DE5A3A100F904BC /* DeepLearningModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
