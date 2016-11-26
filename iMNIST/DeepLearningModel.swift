@@ -13,88 +13,28 @@ import Accelerate
 
 class DeepLearningModel: NSObject {
 	
-	let IN_COUNT = 784
-	let OUT_COUNT = 10
-	var weightVector = BNNSLayerData()
-	var biasVector = BNNSLayerData()
+
+	var weightVector : BNNSLayerData
+	var biasVector : BNNSLayerData
+	var inputVectorSize : Int
+	var outputVectorSize : Int
 	
-	
-	
-	func resize(image: UIImage, with height: CGFloat) -> UIImage?{
+	init?(weightVector : BNNSLayerData?, biasVector: BNNSLayerData?, inputVectorSize : Int, outputVectorSize: Int) {
 		
-		guard let imageRef = image.cgImage else {
-			// handle error here
+		if let weightVector = weightVector, let biasVector = biasVector {
+			self.weightVector = weightVector
+			self.biasVector = biasVector
+		}else if let safeBiasVector = Utils.importBiasesFrom(file: Constants.BIASES_FILENAME), let safeWeightVector = Utils.importWeightsFrom(file: Constants.WEIGHTS_FILENAME){
+				self.biasVector = safeBiasVector
+				self.weightVector = safeWeightVector
+		}else{
 			return nil
 		}
-		 return UIImage(cgImage: imageRef, scale: image.size.height/height, orientation: image.imageOrientation)
-	}
-	
-	
-	// TODO: figure out why we have so much values and how to get down to 784 : one value per pixel
-	func pixelValuesFromImage(imageRef: CGImage?) -> [UInt8]?
-	{
-		var width = 0
-		var height = 0
-		var pixelValues: [UInt8]?
-		if let imageRef = imageRef {
-			width = imageRef.width
-			height = imageRef.height
-			let bitsPerComponent = imageRef.bitsPerComponent
-			let bytesPerRow = imageRef.bytesPerRow
-			let totalBytes = height * bytesPerRow
-			
-			let colorSpace = CGColorSpaceCreateDeviceGray()
-			pixelValues = [UInt8](repeating: 0, count: totalBytes)
-			
-			let contextRef = CGContext(data: &pixelValues!, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: 0)
-			contextRef?.draw(imageRef, in: CGRect(origin: CGPoint.zero, size: CGSize(width: width, height: height)))
-		}
-		
-		return pixelValues
-	}
-	
-	// TODO: Use functionnal programming map instead of doing a for
-	func convertUIntArrayToFloatArray(array: [UInt8]?)-> [Float]{
-		
-		var resultArray = [Float]()
-		
-		if let safeArray = array{
-			for item in safeArray {
-				resultArray.append(Float(item)/255.0)
-			}
-		}
-		return resultArray
-		
-	}
-	
-	func convertImageToGrayVector(image: UIImage) -> [Float]? {
-		
-		if let image = convertToGrayScale(image: image), let safeCgImage = image.cgImage {
-			return convertUIntArrayToFloatArray(array: pixelValuesFromImage(imageRef: safeCgImage))
-		}
-		return nil
-	}
-	
-	func convertToGrayScale(image: UIImage) -> UIImage? {
-		let imageRect:CGRect = CGRect(origin: CGPoint.zero, size: CGSize(width: image.size.width, height:  image.size.height))
-		let colorSpace = CGColorSpaceCreateDeviceGray()
-		let width = image.size.width
-		let height = image.size.height
-		
-		let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue)
-		if let context = CGContext(data: nil, width: Int(width), height: Int(height), bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo.rawValue), let cgImage = image.cgImage{
-			context.draw(cgImage, in: imageRect)
-			
-			if let imageRef = context.makeImage(){
-				let newImage = UIImage(cgImage: imageRef)
-				return newImage
-				
-			}
-		}
-		return nil
-	}
-	
 
+		self.inputVectorSize = inputVectorSize
+		self.outputVectorSize = outputVectorSize
+		
+	}
 	
 	//		// Describe input stack
 	//		let in_stack = BNNSImageStackDescriptor(width: <#T##Int#>,
@@ -108,122 +48,40 @@ class DeepLearningModel: NSObject {
 	
 	func inferResultsFromImage(image: UIImage) -> [Float]?{
 
-		var inVectorDescriptor : BNNSVectorDescriptor = BNNSVectorDescriptor(size: IN_COUNT, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0)
-		var outVectorDescriptor : BNNSVectorDescriptor = BNNSVectorDescriptor(size: OUT_COUNT, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0)
+		var outArray : [Float]?
+
+		// Define form of the input and ouput vectors (descriptors)
+		var inVectorDescriptor : BNNSVectorDescriptor = BNNSVectorDescriptor(size: inputVectorSize, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0)
+		var outVectorDescriptor : BNNSVectorDescriptor = BNNSVectorDescriptor(size: outputVectorSize, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0)
 		
+		// Import the weights and biases
 		
-		 importCNN()
-		
-		var parameters : BNNSFullyConnectedLayerParameters = BNNSFullyConnectedLayerParameters(in_size: IN_COUNT, out_size: OUT_COUNT, weights: weightVector, bias: biasVector, activation: BNNSActivation(function: BNNSActivationFunctionIdentity,alpha: 1,beta: 1))
+		// Create the one and only layer of this NN
+		var parameters : BNNSFullyConnectedLayerParameters = BNNSFullyConnectedLayerParameters(in_size: inputVectorSize, out_size: outputVectorSize, weights: weightVector, bias: biasVector, activation: BNNSActivation(function: BNNSActivationFunctionIdentity,alpha: 1,beta: 1))
 		
 		
 		// Create the filter
-		//var filterParams = BNNSFilterParameters()
-		//filterParams.
+
 		let filter = BNNSFilterCreateFullyConnectedLayer(&inVectorDescriptor,
 		                                                 &outVectorDescriptor,
 		                                                 &parameters,nil)
 		
-		
-		if let resizedImage = resize(image: image, with: 28), var safeInBuffer = convertImageToGrayVector(image: resizedImage){
-			
-			// Fill inBuffer with input here
-			
+		// Convert output image to a MNIST compatible format  : a normalized vector of pixel values from a grayscale 28*28 image
+		if let resizedImage = Utils.resize(image: image, with: CGFloat(Constants.MNIST_IMAGE_WIDTH)), var safeInBuffer = Utils.convertImageToGrayVector(image: resizedImage){
+
+			safeInBuffer.removeSubrange(Constants.IN_COUNT..<safeInBuffer.count)
 			var outBuffer = [Float]()
-			safeInBuffer.removeSubrange(784..<safeInBuffer.count)
-			
+			// Here we do the inference
 			let success = BNNSFilterApply(filter, safeInBuffer, &outBuffer)
 			
-			if (success == -1){
-				// Handle error here
-				print("Error: inference failed")
+			if (success == -1 || outBuffer == [Float]()){
+				print("Error: BNNS inference failed")
+				outArray = nil
 			}
-			
-			//BNNSFilterDestroy(filter)
-			
-			return outBuffer
+			BNNSFilterDestroy(filter)
 		}
-		
-		return nil
-		
+		return outArray
 	}
 	
-	func importCNN(){
-		if let safeBiasVector = importBiasesFrom(file: "biases"), let safeWeightVector = importWeightsFrom(file: "weights"){
-			biasVector = safeBiasVector
-			weightVector = safeWeightVector
-		}else{
-			// handler error here
-		}
-	}
-	
-	func importBiasesFrom(file : String) -> BNNSLayerData?{
-		if let path = Bundle.main.path(forResource: file, ofType: "data") {
-			do {
-				let data = try String(contentsOfFile: path, encoding: .utf8)
-				
-				var numString = ""
-				var vector = [Double]()
-				for c in data.characters{
-					
-					if(c == "," || c == "]"){
-						if let numDouble = Double(numString){
-							vector.append(numDouble)
-						}
-						numString = ""
-					}else if (c == "["){
-						vector = [Double]()
-					}else if (c != " "){
-						numString.append(c)
-					}
-				}
-				
-				return BNNSLayerData(data: vector, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0, data_table: nil)
-			} catch {
-				print(error)
-			}
-		}
-			return nil
-	}
-	
-	func importWeightsFrom(file : String) -> BNNSLayerData?{
-		if let path = Bundle.main.path(forResource: file, ofType: "data") {
-			do {
-				let data = try String(contentsOfFile: path, encoding: .utf8)
-				
-				var numString = ""
-				var vector = [Double]()
-				var matrice = [[Double]]()
-				for c in data.characters{
-					
-					if(c == ","){
-						if let numDouble = Double(numString){
-							vector.append(numDouble)
-						}
-						numString = ""
-					}else if (c == "]" && matrice.count < 784){
-						if let numDouble = Double(numString){
-							vector.append(numDouble)
-						}
-						numString = ""
-
-						matrice.append(vector)
-					}else if (c == "["){
-						vector = [Double]()
-					}else if (c != " "){
-						numString.append(c)
-					}
-				}
-				
-				return BNNSLayerData(data: matrice, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0, data_table: nil)
-			} catch {
-				print(error)
-			}
-		}
-		return nil
-
-	}
-	
-
 	
 }

@@ -11,12 +11,14 @@ import UIKit
 class ViewController: UIViewController {
 
 	// the imageview must be square or we have to crop
+	// MARK: - UI elements
 	@IBOutlet weak var mainImgView: UIImageView!
 	@IBOutlet weak var tempImgView: UIImageView!
 	@IBOutlet weak var resultLabel: UILabel!
-	
+	var uiImage : UIImage?
+
 	// MARK: - Drawing Attributes
-	var model = DeepLearningModel()
+	var model = DeepLearningModel(weightVector: nil, biasVector: nil, inputVectorSize: Constants.IN_COUNT, outputVectorSize: Constants.OUT_COUNT)
 	var lastPoint = CGPoint.zero
 	var red: CGFloat = 0.0
 	var green: CGFloat = 0.0
@@ -25,7 +27,6 @@ class ViewController: UIViewController {
 	var opacity: CGFloat = 1.0
 	var swiped = false
 	// MARK: - Other Attributes
-	var uiImage : UIImage?
 	var timer = Timer()
 	var results = [Float]()
 
@@ -43,20 +44,18 @@ class ViewController: UIViewController {
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.
-		
 	}
 	
 	// MARK: - Drawing-related methods
 	// The drawing part was heavily inspired by Ray Wenderlich tutorial website : https://www.raywenderlich.com/87899/make-simple-drawing-app-uikit-swift
 	func drawLineFrom(firstPoint: CGPoint, to lastPoint: CGPoint) {
-	
 		
 		// 1
-		UIGraphicsBeginImageContext(view.frame.size)
+		UIGraphicsBeginImageContext(tempImgView.frame.size)
 		let context : CGContext? = UIGraphicsGetCurrentContext()
 		
 		if context != nil {
-			tempImgView.image?.draw(in: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height))
+			tempImgView.image?.draw(in: CGRect(x: 0, y: 0, width: tempImgView.frame.size.width, height: tempImgView.frame.size.height))
 			
 			// 2
 			context?.move(to: firstPoint)
@@ -94,11 +93,10 @@ class ViewController: UIViewController {
 					self.mainImgView.image = nil
 					self.mainImgView.alpha = 1
 				}
-
 		}
-		
 	}
 	
+	// MARK: - Timer methods
 	
 	func startTimer(){
 		timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(ViewController.startFadeAnimation), userInfo: nil, repeats: false)
@@ -111,61 +109,64 @@ class ViewController: UIViewController {
 	// MARK : - UIResponder methods
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		
 		swiped = false
 		cancelTimer()
 		if let touch = touches.first{
-			lastPoint = touch.location(in: self.view)
+			lastPoint = touch.location(in: self.tempImgView)
 		}
 	}
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		
-	  if !swiped {
+		if !swiped {
 		// draw a single point
-		drawLineFrom(firstPoint: lastPoint, to: lastPoint)
-	  }
+			drawLineFrom(firstPoint: lastPoint, to: lastPoint)
+		}
 			
-	  // Merge tempImgView into mainImgView
-	  UIGraphicsBeginImageContext(mainImgView.frame.size)
-	  mainImgView.image?.draw(in: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height), blendMode: .normal, alpha: 1.0)
-	  tempImgView.image?.draw(in: CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height), blendMode: .normal, alpha: opacity)
-	  mainImgView.image = UIGraphicsGetImageFromCurrentImageContext()
-	
+		// Merge tempImgView into mainImgView
+		UIGraphicsBeginImageContext(mainImgView.frame.size)
+		if let mainImg = mainImgView.image, let tempImg = tempImgView.image{
+			mainImg.draw(in: CGRect(x: 0, y: 0, width: mainImgView.frame.width, height: mainImgView.frame.size.height), blendMode: .normal, alpha: 1.0)
+			tempImg.draw(in: CGRect(x: 0, y: 0, width: tempImgView.frame.size.width, height: tempImgView.frame.size.height), blendMode: .normal, alpha: opacity)
+		}
+		mainImgView.image = UIGraphicsGetImageFromCurrentImageContext()
 		if let cgimage = mainImgView.image?.cgImage?.copy(){
 			uiImage = UIImage(cgImage: cgimage)
 		}
 		UIGraphicsEndImageContext()
-	 tempImgView.image = nil
-
-	}
-	
-	func inferDigitFromImage(){
-		if let image = uiImage{
-			if let safeResults = model.inferResultsFromImage(image: image) {
-				results = safeResults
-				print(results)
-				startTimer()
-				
-			}
-			
-		}
-
-	}
-	@IBAction func computeAction(_ sender: AnyObject) {
-		inferDigitFromImage()
+		tempImgView.image = nil
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		// 6
 		swiped = true
 		if let touch = touches.first {
-			let currentPoint = touch.location(in: view)
+			let currentPoint = touch.location(in: tempImgView)
 			drawLineFrom(firstPoint: lastPoint, to: currentPoint)
-			
 			// 7
 			lastPoint = currentPoint
 		}
 	}
+	
+	
+	// MARK: - Actions
+	@IBAction func computeAction(_ sender: AnyObject) {
+		inferDigitFromImage()
+	}
+	
+	// MARK: - CNN-related methods
+	
+	func inferDigitFromImage(){
+		if let model = model, let image = uiImage, let safeResults = model.inferResultsFromImage(image: image) {
+				results = safeResults
+				print(results)
+				startTimer()
+			}else{
+				let alertVC = UIAlertController(title: "Error", message: "BNNS inference failed", preferredStyle: .alert)
+				alertVC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+				self.show(alertVC, sender: nil)
+			}
+	}
+	
 
 }
 

@@ -17,6 +17,9 @@
 		DEA0BDB51DE4E72F00C0C65D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEA0BDB41DE4E72F00C0C65D /* Assets.xcassets */; };
 		DEA0BDB81DE4E72F00C0C65D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEA0BDB61DE4E72F00C0C65D /* LaunchScreen.storyboard */; };
 		DEA0BDC31DE4E73000C0C65D /* iMNISTTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA0BDC21DE4E73000C0C65D /* iMNISTTests.swift */; };
+		DEC603541DE9DA4800FC7E00 /* DeepLearningModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC603531DE9DA4800FC7E00 /* DeepLearningModelTests.swift */; };
+		DEC603561DE9FF0000FC7E00 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC603551DE9FF0000FC7E00 /* Utils.swift */; };
+		DEC603581DEA01FC00FC7E00 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC603571DEA01FC00FC7E00 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +47,9 @@
 		DEA0BDBE1DE4E73000C0C65D /* iMNISTTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iMNISTTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA0BDC21DE4E73000C0C65D /* iMNISTTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iMNISTTests.swift; sourceTree = "<group>"; };
 		DEA0BDC41DE4E73000C0C65D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DEC603531DE9DA4800FC7E00 /* DeepLearningModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLearningModelTests.swift; sourceTree = "<group>"; };
+		DEC603551DE9FF0000FC7E00 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		DEC603571DEA01FC00FC7E00 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +103,8 @@
 			children = (
 				DEA0BDAD1DE4E72F00C0C65D /* AppDelegate.swift */,
 				DEA0BDAF1DE4E72F00C0C65D /* ViewController.swift */,
+				DEC603551DE9FF0000FC7E00 /* Utils.swift */,
+				DEC603571DEA01FC00FC7E00 /* Constants.swift */,
 				DE28E1231DE5A3A100F904BC /* DeepLearningModel.swift */,
 				DE28E1251DE6A7AD00F904BC /* biases.data */,
 				DE28E1261DE6A7AD00F904BC /* weights.data */,
@@ -112,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				DEA0BDC21DE4E73000C0C65D /* iMNISTTests.swift */,
+				DEC603531DE9DA4800FC7E00 /* DeepLearningModelTests.swift */,
 				DEA0BDC41DE4E73000C0C65D /* Info.plist */,
 			);
 			path = iMNISTTests;
@@ -224,9 +233,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEC603581DEA01FC00FC7E00 /* Constants.swift in Sources */,
 				DEA0BDB01DE4E72F00C0C65D /* ViewController.swift in Sources */,
 				DEA0BDAE1DE4E72F00C0C65D /* AppDelegate.swift in Sources */,
 				DE28E1241DE5A3A100F904BC /* DeepLearningModel.swift in Sources */,
+				DEC603561DE9FF0000FC7E00 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +246,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEA0BDC31DE4E73000C0C65D /* iMNISTTests.swift in Sources */,
+				DEC603541DE9DA4800FC7E00 /* DeepLearningModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
