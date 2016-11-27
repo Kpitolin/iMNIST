@@ -14,11 +14,17 @@ class Utils {
 	
 	public class func resize(image: UIImage, with height: CGFloat) -> UIImage?{
 		
-		guard let imageRef = image.cgImage else {
-			// handle error here
-			return nil
-		}
-		return UIImage(cgImage: imageRef, scale: image.size.height/height, orientation: image.imageOrientation)
+		let scale = height / image.size.height
+		let width = round(image.size.width * scale)
+		
+		UIGraphicsBeginImageContext(CGSize(width: width, height: height))
+		
+		
+		image.draw(in: CGRect(x: 0, y: 0,width: width, height: height))
+		let newImage = UIGraphicsGetImageFromCurrentImageContext()
+		UIGraphicsEndImageContext()
+		
+		return newImage
 	}
 	
 	
@@ -60,8 +66,7 @@ class Utils {
 	}
 	
 	public class func convertImageToGrayVector(image: UIImage) -> [Float]? {
-		
-		if let image = convertToGrayScale(image: image), let safeCgImage = image.cgImage {
+		if let safeImage = convertToGrayScale(image: image), let safeCgImage = safeImage.cgImage{
 			return convertUIntArrayToFloatArray(array: pixelValuesFromImage(imageRef: safeCgImage))
 		}
 		return nil
@@ -74,7 +79,11 @@ class Utils {
 		let height = image.size.height
 		
 		let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue)
-		if let context = CGContext(data: nil, width: Int(width), height: Int(height), bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo.rawValue), let cgImage = image.cgImage{
+		if let context = CGContext(data: nil, width: Int(width), height: Int(height), bitsPerComponent: 8, bytesPerRow: Constants.MNIST_IMAGE_WIDTH, space: colorSpace, bitmapInfo: bitmapInfo.rawValue), let cgImage = image.cgImage?.copy(){
+			
+			// As the image contains just the handwriting, we draw a white rectangle (the model won't interpret alpha well)
+			context.setFillColor(gray: 1, alpha: 1)
+			context.fill(imageRect)
 			context.draw(cgImage, in: imageRect)
 			
 			if let imageRef = context.makeImage(){
@@ -86,7 +95,7 @@ class Utils {
 		return nil
 	}
 	
-	
+	// TODO: - output Double vector
 	public class func importBiasesFrom(file : String) -> BNNSLayerData?{
 		if let path = Bundle.main.path(forResource: file, ofType: "data") {
 			do {
@@ -116,6 +125,7 @@ class Utils {
 		return nil
 	}
 	
+	// TODO: - output Double vector
 	public class func importWeightsFrom(file : String) -> BNNSLayerData?{
 		if let path = Bundle.main.path(forResource: file, ofType: "data") {
 			do {

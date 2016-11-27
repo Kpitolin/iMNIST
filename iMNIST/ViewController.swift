@@ -115,19 +115,25 @@ class ViewController: UIViewController {
 			lastPoint = touch.location(in: self.tempImgView)
 		}
 	}
+	
+
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		
 		if !swiped {
 		// draw a single point
 			drawLineFrom(firstPoint: lastPoint, to: lastPoint)
 		}
-			
+		
+
+		// we do that only if it was in mainImgView
+		touches.forEach { (touch) in
+			print(touch.location(in: mainImgView))
+		}
 		// Merge tempImgView into mainImgView
 		UIGraphicsBeginImageContext(mainImgView.frame.size)
-		if let mainImg = mainImgView.image, let tempImg = tempImgView.image{
-			mainImg.draw(in: CGRect(x: 0, y: 0, width: mainImgView.frame.width, height: mainImgView.frame.size.height), blendMode: .normal, alpha: 1.0)
-			tempImg.draw(in: CGRect(x: 0, y: 0, width: tempImgView.frame.size.width, height: tempImgView.frame.size.height), blendMode: .normal, alpha: opacity)
-		}
+			mainImgView.image?.draw(in: CGRect(x: 0, y: 0, width: mainImgView.frame.width, height: mainImgView.frame.size.height), blendMode: .normal, alpha: 1.0)
+			tempImgView.image?.draw(in: CGRect(x: 0, y: 0, width: tempImgView.frame.size.width, height: tempImgView.frame.size.height), blendMode: .normal, alpha: opacity)
+		
 		mainImgView.image = UIGraphicsGetImageFromCurrentImageContext()
 		if let cgimage = mainImgView.image?.cgImage?.copy(){
 			uiImage = UIImage(cgImage: cgimage)
@@ -138,6 +144,8 @@ class ViewController: UIViewController {
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		// 6
+		
+		// we do that only if it was in mainImgView
 		swiped = true
 		if let touch = touches.first {
 			let currentPoint = touch.location(in: tempImgView)
@@ -156,7 +164,8 @@ class ViewController: UIViewController {
 	// MARK: - CNN-related methods
 	
 	func inferDigitFromImage(){
-		if let model = model, let image = uiImage, let safeResults = model.inferResultsFromImage(image: image) {
+		if let model = model, let image = uiImage {
+			if let safeResults = model.inferResultsFromImage(image: image) {
 				results = safeResults
 				print(results)
 				startTimer()
@@ -165,6 +174,7 @@ class ViewController: UIViewController {
 				alertVC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
 				self.show(alertVC, sender: nil)
 			}
+		}
 	}
 	
 

@@ -7,6 +7,7 @@
 //
 
 import XCTest
+@testable import iMNIST
 
 class DeepLearningModelTests: XCTestCase {
     
@@ -37,6 +38,8 @@ class DeepLearningModelTests: XCTestCase {
 	}
 	
 	func convertImageToGrayVector(){
+		//UIImage()
+		//XCTAssertEqual(Utils.convertImageToGrayVector(image: <#T##UIImage#>) , <#T##expression2: [T]##[T]#>)
 		
 	}
 	

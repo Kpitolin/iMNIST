@@ -36,16 +36,7 @@ class DeepLearningModel: NSObject {
 		
 	}
 	
-	//		// Describe input stack
-	//		let in_stack = BNNSImageStackDescriptor(width: <#T##Int#>,
-	//		                                        height: <#T##Int#>,
-	//		                                        channels: <#T##Int#>,
-	//		                                        row_stride: <#T##Int#>, // increment to next row
-	//			image_stride: <#T##Int#>, // increment to next channel (pix)
-	//			data_type: BNNSDataTypeFloat32,
-	//			data_scale: 1,
-	//			data_bias: 0)
-	
+
 	func inferResultsFromImage(image: UIImage) -> [Float]?{
 
 		var outArray : [Float]?
@@ -67,19 +58,24 @@ class DeepLearningModel: NSObject {
 		                                                 &parameters,nil)
 		
 		// Convert output image to a MNIST compatible format  : a normalized vector of pixel values from a grayscale 28*28 image
-		if let resizedImage = Utils.resize(image: image, with: CGFloat(Constants.MNIST_IMAGE_WIDTH)), var safeInBuffer = Utils.convertImageToGrayVector(image: resizedImage){
-
-			safeInBuffer.removeSubrange(Constants.IN_COUNT..<safeInBuffer.count)
-			var outBuffer = [Float]()
-			// Here we do the inference
-			let success = BNNSFilterApply(filter, safeInBuffer, &outBuffer)
+		if let resizedImage = Utils.resize(image: image, with: CGFloat(Constants.MNIST_IMAGE_WIDTH)){
 			
-			if (success == -1 || outBuffer == [Float]()){
-				print("Error: BNNS inference failed")
-				outArray = nil
+			if let safeInBuffer = Utils.convertImageToGrayVector(image: resizedImage){
+				// we allocate typed memory for the output
+				var outBuffer = [0,0,0,0,0,0,0,0,0,0] as [Float]
+				// Here we do the inference
+				let success = BNNSFilterApply(filter, safeInBuffer, &outBuffer)
+				
+				if (success == -1){
+					print("Error: BNNS inference failed")
+					outArray = nil
+				}else{
+					outArray = outBuffer
+				}
 			}
-			BNNSFilterDestroy(filter)
 		}
+		BNNSFilterDestroy(filter)
+
 		return outArray
 	}
 	
