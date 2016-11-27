@@ -16,10 +16,9 @@ Nota bene : The code was written following the [Swift 3](https://developer.apple
 ## How does it work ? 
 
 ### UI
-Here is a capture from the app :    
+Here is a capture from the app :
 
-   
-->![image](screenshot.png =200x)<-
+<img src="screenshot.png" width="300"/>
 
 - The user draws a figure between the two lines.
 - He presses the compute button and the app will try to guess what figure was drawn.
