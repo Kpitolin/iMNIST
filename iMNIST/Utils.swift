@@ -51,8 +51,7 @@ class Utils {
 		return pixelValues
 	}
 	
-	// TODO: Use functionnal programming map instead of doing a for
-	public class func convertUIntArrayToFloatArray(array: [UInt8]?)-> [Float]{
+	public class func convertPixelValuesArrayToNormalizedFloatArray(array: [UInt8]?)-> [Float]{
 		
 		var resultArray = [Float]()
 		
@@ -61,13 +60,16 @@ class Utils {
 				resultArray.append(Float(item)/255.0)
 			}
 		}
+		
+		// We take the complementary here : grayscale consider white as 1, we need it to be 0
+		resultArray = resultArray.map{ 1 - $0 }
 		return resultArray
 		
 	}
 	
 	public class func convertImageToGrayVector(image: UIImage) -> [Float]? {
 		if let safeImage = convertToGrayScale(image: image), let safeCgImage = safeImage.cgImage{
-			return convertUIntArrayToFloatArray(array: pixelValuesFromImage(imageRef: safeCgImage))
+			return convertPixelValuesArrayToNormalizedFloatArray(array: pixelValuesFromImage(imageRef: safeCgImage))
 		}
 		return nil
 	}
@@ -95,23 +97,23 @@ class Utils {
 		return nil
 	}
 	
-	// TODO: - output Double vector
+	// TODO: - output Float vector
 	public class func importBiasesFrom(file : String) -> BNNSLayerData?{
 		if let path = Bundle.main.path(forResource: file, ofType: "data") {
 			do {
 				let data = try String(contentsOfFile: path, encoding: .utf8)
 				
 				var numString = ""
-				var vector = [Double]()
+				var vector = [Float]()
 				for c in data.characters{
 					
 					if(c == "," || c == "]"){
-						if let numDouble = Double(numString){
-							vector.append(numDouble)
+						if let numFloat = Float(numString){
+							vector.append(numFloat)
 						}
 						numString = ""
 					}else if (c == "["){
-						vector = [Double]()
+						vector = [Float]()
 					}else if (c != " "){
 						numString.append(c)
 					}
@@ -125,34 +127,44 @@ class Utils {
 		return nil
 	}
 	
-	// TODO: - output Double vector
+	// TODO: - output Float vector
 	public class func importWeightsFrom(file : String) -> BNNSLayerData?{
 		if let path = Bundle.main.path(forResource: file, ofType: "data") {
 			do {
 				let data = try String(contentsOfFile: path, encoding: .utf8)
 				
 				var numString = ""
-				var vector = [Double]()
-				var matrice = [[Double]]()
+				var vector = [Float]()
+				var matrice = [[Float]]()
 				for c in data.characters{
 					
 					if(c == ","){
-						if let numDouble = Double(numString){
-							vector.append(numDouble)
+						if let numFloat = Float(numString){
+							vector.append(numFloat)
 						}
 						numString = ""
 						// TODO: - constants
 					}else if (c == "]" && matrice.count < Constants.IN_COUNT){
-						if let numDouble = Double(numString){
-							vector.append(numDouble)
+						if let numFloat = Float(numString){
+							vector.append(numFloat)
 						}
 						numString = ""
 						
 						matrice.append(vector)
 					}else if (c == "["){
-						vector = [Double]()
+						vector = [Float]()
 					}else if (c != " "){
 						numString.append(c)
+					}
+				}
+				
+				// Invert the dimensions of the matrice
+				var outMatrice = [[Float]]()
+				let countY = matrice[0].count
+				outMatrice = Array.init(repeating: Array.init(repeating:0, count:matrice.count), count: countY)
+				for i in 0...matrice.count-1{
+					for j in 0...matrice[i].count-1{
+						outMatrice[j].insert(matrice[i][j], at: i)
 					}
 				}
 				
@@ -163,5 +175,33 @@ class Utils {
 		}
 		return nil
 		
+	}
+	
+	
+	public class func softmax(inArray : [Float], size : Int) -> [Float]
+	{
+		// Temporary buffer
+		var ebuffer = [Float]()
+		var out = [Float]()
+		// Sum of exponentials
+		var esum : Float = 0.0
+		
+		// Step through the in array, take the exponential of it.
+		// Put it in 'ebuffer' and keep a running sum
+		for i in 0...size-1 {
+			print(inArray[i])
+			let ed = expf(inArray[i])
+			print(ed)
+			esum += ed
+			print(esum)
+			ebuffer.append(ed)
+		}
+		
+		// The output is the exponentials scaled so they
+		// sum to 1.0
+		for i in 0...size-1 {
+			out.append(ebuffer[i]/esum)
+		}
+		return out
 	}
 }

@@ -62,7 +62,7 @@ class DeepLearningModel: NSObject {
 			
 			if let safeInBuffer = Utils.convertImageToGrayVector(image: resizedImage){
 				// we allocate typed memory for the output
-				var outBuffer = [0,0,0,0,0,0,0,0,0,0] as [Float]
+				var outBuffer : [Float] = Array.init(repeating: 0.0, count: Constants.OUT_COUNT )
 				// Here we do the inference
 				let success = BNNSFilterApply(filter, safeInBuffer, &outBuffer)
 				
@@ -70,7 +70,8 @@ class DeepLearningModel: NSObject {
 					print("Error: BNNS inference failed")
 					outArray = nil
 				}else{
-					outArray = outBuffer
+					
+					outArray = Utils.softmax(inArray: outBuffer, size: Constants.OUT_COUNT)
 				}
 			}
 		}

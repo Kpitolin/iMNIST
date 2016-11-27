@@ -23,7 +23,7 @@ class ViewController: UIViewController {
 	var red: CGFloat = 0.0
 	var green: CGFloat = 0.0
 	var blue: CGFloat = 0.0
-	var brushWidth: CGFloat = 1.0
+	var brushWidth: CGFloat = 5.0
 	var opacity: CGFloat = 1.0
 	var swiped = false
 	// MARK: - Other Attributes
