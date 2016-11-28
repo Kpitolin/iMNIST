@@ -1,6 +1,7 @@
 //
 //  DeepLearningModel.swift
 //  The purpose of this class is to define a CNN model structure, import the weights and biases from a trained CNN, and do inference from it
+//  Heavily inspired by https://github.com/bignerdranch/bnns-cocoa-example
 //  iMNIST
 //
 //  Created by KEVIN on 11/23/16.

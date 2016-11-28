@@ -157,17 +157,17 @@ class Utils {
 					}
 				}
 				
-				// Invert the dimensions of the matrice
-
+				// Invert the dimensions of the matrice and flatten it to a vector
+				// TODO: generalize that with a method
+				
 				var outMatrice = [Float]()
-				let countY = matrice[0].count
-				outMatrice = Array.init(repeating:0, count: countY * matrice.count)
 				for i in 0...matrice.count-1{
 					for j in 0...matrice[i].count-1{
-						outMatrice.insert(matrice[i][j], at: i*countY+j)
+						outMatrice.append(matrice[i][j])
 					}
 				}
-				
+				// Remove the element used for initialize the array
+
 				return BNNSLayerData(data: outMatrice, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0, data_table: nil)
 			} catch {
 				print(error)
@@ -204,5 +204,11 @@ class Utils {
 			out.append(ebuffer[i]/esum)
 		}
 		return out
+	}
+	
+	
+	public class func pickSentenceAtRandom() -> String{
+		let index = arc4random_uniform(UInt32(Constants.DOUBTSENTENCES.count))
+		return Constants.DOUBTSENTENCES[Int(index)]
 	}
 }

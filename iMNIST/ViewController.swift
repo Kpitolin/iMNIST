@@ -23,7 +23,7 @@ class ViewController: UIViewController {
 	var red: CGFloat = 0.0
 	var green: CGFloat = 0.0
 	var blue: CGFloat = 0.0
-	var brushWidth: CGFloat = 1.0
+	var brushWidth: CGFloat = 5.0
 	var opacity: CGFloat = 1.0
 	var swiped = false
 	// MARK: - Other Attributes
@@ -170,8 +170,22 @@ class ViewController: UIViewController {
 		if let image = uiImage, let safeResults = model.inferResultsFromImage(image: image) {
 				//results = safeResults
 				print(safeResults)
-			if let resultDigit = safeResults.max(), let indiceOfMax = safeResults.index(of: resultDigit){
-					resultLabel.text = "C'est un \(indiceOfMax)"
+			if let resultDigitProbability = safeResults.max(), let indiceOfMax = safeResults.index(of: resultDigitProbability){
+				if (resultDigitProbability < 0.2){
+					
+					let sortedResults  = safeResults.sorted(by:>)
+					let probableValues = sortedResults.dropLast(safeResults.count-3)
+					var arrayOfIndexes = [Int]()
+					probableValues.forEach({ (item) in
+						if let safeIndex = safeResults.index(of: item), item != safeResults.max(){
+							arrayOfIndexes.append(safeIndex)
+						}
+					})
+					
+					resultLabel.text = Utils.pickSentenceAtRandom() + "\n" + "Is it a \(indiceOfMax), \(arrayOfIndexes[0]) or \(arrayOfIndexes[1])?"
+				}else{
+					resultLabel.text = "It is a \(indiceOfMax)."
+				}
 					startTimer()
 				}
 			}else{
