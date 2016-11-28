@@ -62,7 +62,7 @@ class Utils {
 		}
 		
 		// We take the complementary here : grayscale consider white as 1, we need it to be 0
-		resultArray = resultArray.map{ 1 - $0 }
+		resultArray = resultArray.map{ Float(1 - $0)}
 		return resultArray
 		
 	}
@@ -118,7 +118,6 @@ class Utils {
 						numString.append(c)
 					}
 				}
-				
 				return BNNSLayerData(data: vector, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0, data_table: nil)
 			} catch {
 				print(error)
@@ -159,16 +158,17 @@ class Utils {
 				}
 				
 				// Invert the dimensions of the matrice
-				var outMatrice = [[Float]]()
+
+				var outMatrice = [Float]()
 				let countY = matrice[0].count
-				outMatrice = Array.init(repeating: Array.init(repeating:0, count:matrice.count), count: countY)
+				outMatrice = Array.init(repeating:0, count: countY * matrice.count)
 				for i in 0...matrice.count-1{
 					for j in 0...matrice[i].count-1{
-						outMatrice[j].insert(matrice[i][j], at: i)
+						outMatrice.insert(matrice[i][j], at: i*countY+j)
 					}
 				}
 				
-				return BNNSLayerData(data: matrice, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0, data_table: nil)
+				return BNNSLayerData(data: outMatrice, data_type: BNNSDataTypeFloat32, data_scale: 0, data_bias: 0, data_table: nil)
 			} catch {
 				print(error)
 			}
@@ -178,7 +178,7 @@ class Utils {
 	}
 	
 	
-	public class func softmax(inArray : [Float], size : Int) -> [Float]
+	public class func softmax(inArray : [Float], size : Int, ignoreNaN: Bool = false) -> [Float]
 	{
 		// Temporary buffer
 		var ebuffer = [Float]()
@@ -189,12 +189,13 @@ class Utils {
 		// Step through the in array, take the exponential of it.
 		// Put it in 'ebuffer' and keep a running sum
 		for i in 0...size-1 {
-			print(inArray[i])
 			let ed = expf(inArray[i])
-			print(ed)
-			esum += ed
-			print(esum)
-			ebuffer.append(ed)
+			if !ed.isNaN || !ignoreNaN {
+				esum += ed
+				ebuffer.append(ed)
+			}else{
+				ebuffer.append(Float.nan)
+			}
 		}
 		
 		// The output is the exponentials scaled so they

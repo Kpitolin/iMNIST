@@ -18,12 +18,12 @@ class ViewController: UIViewController {
 	var uiImage : UIImage?
 
 	// MARK: - Drawing Attributes
-	var model = DeepLearningModel(weightVector: nil, biasVector: nil, inputVectorSize: Constants.IN_COUNT, outputVectorSize: Constants.OUT_COUNT)
+	var model = DeepLearningModel()
 	var lastPoint = CGPoint.zero
 	var red: CGFloat = 0.0
 	var green: CGFloat = 0.0
 	var blue: CGFloat = 0.0
-	var brushWidth: CGFloat = 5.0
+	var brushWidth: CGFloat = 1.0
 	var opacity: CGFloat = 1.0
 	var swiped = false
 	// MARK: - Other Attributes
@@ -92,6 +92,8 @@ class ViewController: UIViewController {
 				if (finished){
 					self.mainImgView.image = nil
 					self.mainImgView.alpha = 1
+					self.resultLabel.text = ""
+
 				}
 		}
 	}
@@ -127,7 +129,7 @@ class ViewController: UIViewController {
 
 		// we do that only if it was in mainImgView
 		touches.forEach { (touch) in
-			print(touch.location(in: mainImgView))
+			//print(touch.location(in: mainImgView))
 		}
 		// Merge tempImgView into mainImgView
 		UIGraphicsBeginImageContext(mainImgView.frame.size)
@@ -158,25 +160,25 @@ class ViewController: UIViewController {
 	
 	// MARK: - Actions
 	@IBAction func computeAction(_ sender: AnyObject) {
+		resultLabel.text = "..."
 		inferDigitFromImage()
 	}
 	
 	// MARK: - CNN-related methods
 	
 	func inferDigitFromImage(){
-		if let model = model, let image = uiImage {
-			if let safeResults = model.inferResultsFromImage(image: image) {
-				results = safeResults
-				print(results)
-				startTimer()
+		if let image = uiImage, let safeResults = model.inferResultsFromImage(image: image) {
+				//results = safeResults
+				print(safeResults)
+			if let resultDigit = safeResults.max(), let indiceOfMax = safeResults.index(of: resultDigit){
+					resultLabel.text = "C'est un \(indiceOfMax)"
+					startTimer()
+				}
 			}else{
 				let alertVC = UIAlertController(title: "Error", message: "BNNS inference failed", preferredStyle: .alert)
 				alertVC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
 				self.show(alertVC, sender: nil)
-			}
 		}
 	}
-	
-
 }
 
